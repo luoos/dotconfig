@@ -15,11 +15,15 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
+                dependencies = {
+                    "saghen/blink.cmp",
+                },
 		config = function()
+                        local capabilities = require("blink.cmp").get_lsp_capabilities()
 			local lspconfig = require("lspconfig")
-			lspconfig.lua_ls.setup({})
+			lspconfig.lua_ls.setup({ capabilities = capabilities })
 			lspconfig.ast_grep.setup({})
-			lspconfig.clangd.setup({})
+			lspconfig.clangd.setup({ capabilities = capabilities })
 
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, {})
 			vim.keymap.set({ "n" }, "<space>ca", vim.lsp.buf.code_action, {})
