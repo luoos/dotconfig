@@ -105,7 +105,12 @@ vim.pack.add({
 }, { confirm = false })
 
 require('snacks').setup({
-  picker = { enabled = true },
+  -- Include dotfiles (.zshrc, .config/...) in file search and grep; .git and
+  -- gitignored files stay out. In the picker, Alt+h / Alt+i toggle these.
+  picker = {
+    enabled = true,
+    sources = { files = { hidden = true }, grep = { hidden = true } },
+  },
   terminal = { enabled = true },
   input = { enabled = true },
 })
