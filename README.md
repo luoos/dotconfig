@@ -33,17 +33,17 @@ tracked.
    brew install --cask ghostty
    ```
 
-2. Clone this repo into your home folder (the location matters: `.stowrc`
-   links into `~`):
+2. Clone this repo. Any folder works, since `.stowrc` always links into `~`;
+   this README uses `~/repo/dotconfig`:
 
    ```bash
-   git clone https://github.com/luoos/dotconfig.git ~/dotconfig
+   git clone https://github.com/luoos/dotconfig.git ~/repo/dotconfig
    ```
 
 3. Create the links:
 
    ```bash
-   cd ~/dotconfig && stow ghostty tmux zsh nvim vim
+   cd ~/repo/dotconfig && stow ghostty tmux zsh nvim vim
    ```
 
    If a config already exists at a target path (for example a default
@@ -83,8 +83,8 @@ tmux and editors. Ghostty stays on the Mac.
 3. Clone and link everything except Ghostty:
 
    ```bash
-   git clone https://github.com/luoos/dotconfig.git ~/dotconfig
-   cd ~/dotconfig && stow tmux zsh nvim vim
+   git clone https://github.com/luoos/dotconfig.git ~/repo/dotconfig
+   cd ~/repo/dotconfig && stow tmux zsh nvim vim
    ```
 
 **Copying on the server** lands in your Mac's clipboard. tmux, Neovim and
@@ -112,9 +112,9 @@ On a Linux desktop (not over SSH), install `wl-clipboard` (Wayland) or `xclip`
   `~`, move the file in, and stow it. For example, for `~/.config/zed/`:
 
   ```bash
-  mkdir -p ~/dotconfig/zed/.config
-  mv ~/.config/zed ~/dotconfig/zed/.config/
-  cd ~/dotconfig && stow zed
+  mkdir -p ~/repo/dotconfig/zed/.config
+  mv ~/.config/zed ~/repo/dotconfig/zed/.config/
+  cd ~/repo/dotconfig && stow zed
   ```
 
 - **Remove the links for a package:** `stow -D <package>`. The files stay in
@@ -132,7 +132,7 @@ shows nothing.
 **Check.** A dry run reports any problem without changing anything:
 
 ```bash
-cd ~/dotconfig && stow -n ghostty tmux zsh nvim vim
+cd ~/repo/dotconfig && stow -n ghostty tmux zsh nvim vim
 ```
 
 All good: it prints only `WARNING: in simulation mode ...`. A broken link shows
@@ -140,10 +140,10 @@ up as a conflict naming the file:
 
 ```
 WARNING! stowing zsh would cause conflicts:
-  * cannot stow dotconfig/zsh/.zshrc over existing target .zshrc since neither a link nor a directory ...
+  * cannot stow repo/dotconfig/zsh/.zshrc over existing target .zshrc since neither a link nor a directory ...
 ```
 
-To look at the links directly, each line should end in `-> dotconfig/...`:
+To look at the links directly, each line should end in `-> repo/dotconfig/...`:
 
 ```bash
 ls -l ~/.tmux.conf ~/.zshrc ~/.p10k.zsh ~/.vimrc ~/.config/nvim ~/.config/ghostty
@@ -154,7 +154,7 @@ ls -l ~/.tmux.conf ~/.zshrc ~/.p10k.zsh ~/.vimrc ~/.config/nvim ~/.config/ghostt
 link was broken:
 
 ```bash
-cd ~/dotconfig && stow --adopt zsh && git diff
+cd ~/repo/dotconfig && stow --adopt zsh && git diff
 ```
 
 Keep the changes by committing them, or throw them away with

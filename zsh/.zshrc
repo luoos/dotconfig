@@ -77,5 +77,5 @@ t() {
 }
 alias tl='tmux ls'
 
-# Machine-specific settings and secrets (not tracked in ~/dotconfig)
+# Machine-specific settings and secrets (not tracked in ~/repo/dotconfig)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
