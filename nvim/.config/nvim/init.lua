@@ -113,6 +113,12 @@ require('snacks').setup({
   },
   terminal = { enabled = true },
   input = { enabled = true },
+  -- Smooth scrolling for Ctrl+d/u/f/b, the mouse wheel, gg/G, zz, etc.
+  -- 150ms per jump, fast start then easing out; holding a key speeds up.
+  scroll = {
+    enabled = true,
+    animate = { duration = { step = 10, total = 150 }, easing = 'outQuad' },
+  },
 })
 require('gitsigns').setup()
 require('which-key').setup({ delay = 300 })
