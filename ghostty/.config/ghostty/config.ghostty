@@ -1,0 +1,48 @@
+# Ghostty config — reload with Cmd+Shift+, ; see all options: ghostty +show-config --default --docs
+
+# --- Appearance ---
+# Light theme; Vim uses the same palette via its ANSI colors (see ~/.vimrc)
+theme = Breadog
+# Built-in JetBrains Mono (includes Nerd Font symbols)
+font-size = 14
+window-padding-x = 10
+window-padding-y = 8
+window-padding-balance = true
+background-opacity = 0.97
+background-blur = true
+cursor-style = bar
+cursor-style-blink = false
+mouse-hide-while-typing = true
+macos-titlebar-style = tabs
+
+# --- Window / startup ---
+window-save-state = always
+window-inherit-working-directory = true
+confirm-close-surface = false
+quit-after-last-window-closed = true
+
+# --- Input ---
+# Let Option act as Alt/Meta (word jumps in the shell, etc.)
+macos-option-as-alt = true
+copy-on-select = clipboard
+clipboard-paste-protection = true
+# no-cursor: zsh vi mode sets the cursor shape (block/beam) itself
+shell-integration-features = no-cursor,sudo,title
+
+# --- History ---
+scrollback-limit = 50000000
+
+# --- Keybinds ---
+# Splits
+keybind = cmd+d=new_split:right
+keybind = cmd+shift+d=new_split:down
+# Cmd+Shift+Up/Down replace Ghostty's default "jump to previous/next prompt"
+keybind = cmd+shift+left=goto_split:left
+keybind = cmd+shift+right=goto_split:right
+keybind = cmd+shift+up=goto_split:up
+keybind = cmd+shift+down=goto_split:down
+keybind = cmd+shift+enter=toggle_split_zoom
+# Shift+Enter sends a newline (handy for Claude Code and other TUIs)
+keybind = shift+enter=text:\n
+# Global quick terminal (drop-down) — needs Accessibility permission
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
