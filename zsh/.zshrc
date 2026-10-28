@@ -46,9 +46,21 @@ add-zle-hook-widget zle-line-init _vi_cursor
 _vi_cursor_reset() { printf '\e[6 q'; }   # beam for programs launched from the prompt
 add-zsh-hook preexec _vi_cursor_reset
 
-# Powerlevel10k prompt (installed via Homebrew). Run `p10k configure` to restyle.
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+# Powerlevel10k prompt: Homebrew on macOS, a git clone in ~ or a distro package on
+# Linux. Skipped quietly if not installed. Run `p10k configure` to restyle.
+for _p10k in \
+  /opt/homebrew/share/powerlevel10k \
+  /home/linuxbrew/.linuxbrew/share/powerlevel10k \
+  ~/powerlevel10k \
+  /usr/share/zsh-theme-powerlevel10k
+do
+  if [[ -r $_p10k/powerlevel10k.zsh-theme ]]; then
+    source $_p10k/powerlevel10k.zsh-theme
+    [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+    break
+  fi
+done
+unset _p10k
 
 # --- tmux shortcuts ---
 # t          attach to the most recent session (or create "main" if none exist)

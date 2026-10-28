@@ -33,7 +33,11 @@ set expandtab tabstop=4 shiftwidth=4 softtabstop=4
 set smartindent
 set ignorecase smartcase hlsearch
 set mouse=a
-set clipboard=unnamed         " yank/paste use the macOS clipboard
+" Yank/paste use the system clipboard when this Vim has clipboard support
+" (on Linux, 'unnamedplus' is the regular clipboard; 'unnamed' is the selection)
+if has('clipboard')
+  if has('mac') | set clipboard=unnamed | else | set clipboard=unnamedplus | endif
+endif
 set scrolloff=5
 set signcolumn=auto
 set undofile undodir=~/.vim/undo//
@@ -46,11 +50,24 @@ nnoremap <silent> <C-l> :nohlsearch<CR><C-l>
 " <Space>a copies "@path#L12" (normal) or "@path#L12-20" (visual) to the clipboard;
 " paste it into the agent running in another Ghostty split/tab.
 let mapleader = ' '
+" Copy to the local clipboard: pbcopy on macOS, wl-copy/xclip on a Linux desktop,
+" otherwise OSC 52 (works over SSH and through tmux into Ghostty)
+function! s:Clip(text) abort
+  if executable('pbcopy')
+    call system('pbcopy', a:text)
+  elseif !empty($WAYLAND_DISPLAY) && executable('wl-copy')
+    call system('wl-copy', a:text)
+  elseif !empty($DISPLAY) && executable('xclip')
+    call system('xclip -selection clipboard', a:text)
+  else
+    call echoraw("\<Esc>]52;c;" . system('base64 | tr -d "\n"', a:text) . "\x07")
+  endif
+endfunction
 function! s:CopyLineRef(l1, l2) abort
   let path = expand('%:.')   " relative to Vim's cwd, absolute if outside it
   if empty(path) | echohl WarningMsg | echo 'Buffer has no file' | echohl None | return | endif
   let ref = '@' . path . '#L' . a:l1 . (a:l1 == a:l2 ? '' : '-' . a:l2)
-  call system('pbcopy', ref . ' ')
+  call s:Clip(ref . ' ')
   echo 'Copied ' . ref
 endfunction
 nnoremap <silent> <leader>a :<C-u>call <SID>CopyLineRef(line('.'), line('.'))<CR>

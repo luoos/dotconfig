@@ -12,7 +12,19 @@ o.cursorline = true
 o.signcolumn = 'yes'          -- keep git signs from shifting text
 o.scrolloff = 5
 o.mouse = 'a'
-o.clipboard = 'unnamedplus'   -- yank/paste use the macOS clipboard
+o.clipboard = 'unnamedplus'   -- yank/paste use the system clipboard
+-- Over SSH there's no system clipboard: copy to the local one with OSC 52
+-- (through tmux into Ghostty), and paste from Neovim's own register instead of
+-- asking the terminal for its clipboard.
+if vim.env.SSH_TTY then
+  local osc52 = require('vim.ui.clipboard.osc52')
+  local paste = function() return { vim.fn.split(vim.fn.getreg(''), '\n'), vim.fn.getregtype('') } end
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = { ['+'] = osc52.copy('+'), ['*'] = osc52.copy('*') },
+    paste = { ['+'] = paste, ['*'] = paste },
+  }
+end
 o.expandtab = true
 o.tabstop = 4
 o.shiftwidth = 4

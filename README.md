@@ -14,7 +14,7 @@ they'd have relative to `~`.
 | Package   | Links to                        | What it is |
 |-----------|---------------------------------|------------|
 | `ghostty` | `~/.config/ghostty/`            | Ghostty terminal: Breadog light theme, font size, split keys |
-| `tmux`    | `~/.tmux.conf`                  | tmux: mouse, vi copy mode to the macOS clipboard, `\|` / `-` splits, Ctrl+h/j/k/l across tmux and Neovim, PageUp to scroll |
+| `tmux`    | `~/.tmux.conf`                  | tmux: mouse, vi copy mode to the clipboard (OSC 52), `\|` / `-` splits, Ctrl+h/j/k/l across tmux and Neovim, PageUp to scroll |
 | `zsh`     | `~/.zshrc`, `~/.p10k.zsh`       | zsh with vi mode, Powerlevel10k prompt, `t` shortcut for tmux sessions |
 | `nvim`    | `~/.config/nvim/`               | Neovim 0.12+, plugins via the built-in `vim.pack` (versions pinned in `nvim-pack-lock.json`) |
 | `vim`     | `~/.vimrc`                      | Plain Vim, sharing Ghostty's 16-color palette |
@@ -53,6 +53,52 @@ tracked.
    keep.
 
 4. Open a new terminal. Neovim installs its plugins on first launch.
+
+## Setup on a Linux machine you SSH into
+
+Everything except Ghostty works on Linux, so a server gets the same shell,
+tmux and editors. Ghostty stays on the Mac.
+
+1. **On the Mac**, copy Ghostty's terminal description to the server once.
+   Without it, tmux and Neovim there complain about an unknown terminal
+   (`xterm-ghostty`):
+
+   ```bash
+   infocmp -x xterm-ghostty | ssh <host> -- tic -x -
+   ```
+
+2. **On the server**, install the tools (Debian/Ubuntu shown) and make zsh
+   your shell:
+
+   ```bash
+   sudo apt install git stow tmux zsh vim
+   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+   chsh -s "$(command -v zsh)"
+   ```
+
+   The Neovim config needs **Neovim 0.12 or newer** (for `vim.pack`), which
+   distro packages are often behind on. Install it from
+   [Neovim's releases](https://github.com/neovim/neovim/releases) instead.
+
+3. Clone and link everything except Ghostty:
+
+   ```bash
+   git clone https://github.com/luoos/dotconfig.git ~/dotconfig
+   cd ~/dotconfig && stow tmux zsh nvim vim
+   ```
+
+**Copying on the server** lands in your Mac's clipboard. tmux, Neovim and
+Vim's `<Space>a` send copies through the terminal (OSC 52) back to Ghostty, so
+you paste with `Cmd+V` as usual. Over SSH, Neovim's `p` pastes what you last
+yanked in Neovim. To paste from the Mac, use `Cmd+V`.
+
+**tmux inside tmux:** if you run `ssh` from inside your local tmux and start
+tmux on the server too, your keys go to the local one. Press `Ctrl+b` twice to
+send the prefix to the server's tmux. Ctrl+h/j/k/l move between local panes
+only. Running the SSH session in its own Ghostty tab avoids this.
+
+On a Linux desktop (not over SSH), install `wl-clipboard` (Wayland) or `xclip`
+(X11) so Neovim and Vim can reach the clipboard.
 
 ## Day-to-day
 
