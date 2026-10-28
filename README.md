@@ -121,6 +121,48 @@ On a Linux desktop (not over SSH), install `wl-clipboard` (Wayland) or `xclip`
   the repo.
 - **Re-check links after moving things:** `stow -R <package>`.
 
+## Checking the links
+
+Editing a config in `~` only reaches this repo while it's still a symlink. Some
+tools save by writing a new file and swapping it in, which replaces the link
+with a regular file (macOS `sed -i ~/.zshrc` does this; `p10k configure`
+rewrites `~/.p10k.zsh`). After that, edits stay in `~` and `git status` here
+shows nothing.
+
+**Check.** A dry run reports any problem without changing anything:
+
+```bash
+cd ~/dotconfig && stow -n ghostty tmux zsh nvim vim
+```
+
+All good: it prints only `WARNING: in simulation mode ...`. A broken link shows
+up as a conflict naming the file:
+
+```
+WARNING! stowing zsh would cause conflicts:
+  * cannot stow dotconfig/zsh/.zshrc over existing target .zshrc since neither a link nor a directory ...
+```
+
+To look at the links directly, each line should end in `-> dotconfig/...`:
+
+```bash
+ls -l ~/.tmux.conf ~/.zshrc ~/.p10k.zsh ~/.vimrc ~/.config/nvim ~/.config/ghostty
+```
+
+**Fix a file that became a regular file.** Adopt it: Stow moves the file from
+`~` into the repo and puts the link back. Then review what changed while the
+link was broken:
+
+```bash
+cd ~/dotconfig && stow --adopt zsh && git diff
+```
+
+Keep the changes by committing them, or throw them away with
+`git checkout -- zsh/.zshrc`. The link stays either way.
+
+**Fix a link that's missing** (deleted, or a new package): `stow -R <package>`
+recreates it.
+
 ## History
 
 Before October 2026 this repo held only an older Neovim config (lazy.nvim,
