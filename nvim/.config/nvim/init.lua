@@ -176,6 +176,21 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = 'markdown',
   callback = function(ev)
     map('n', '<leader>mp', '<cmd>MarkdownPreviewToggle<CR>', { buffer = ev.buf, desc = 'Markdown preview' })
+    -- The plugin only refreshes on cursor movement, so edits that leave the cursor
+    -- in place (x, u, p, .) or a reload after an outside change go unnoticed.
+    -- A no-op while the preview is closed.
+    vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'FileChangedShellPost' }, {
+      buffer = ev.buf,
+      callback = function() vim.fn['mkdp#rpc#preview_refresh']() end,
+    })
+  end,
+})
+
+-- Reload files changed outside Neovim (e.g. by Claude Code in another split)
+-- when coming back to Neovim or pausing; 'autoread' is on by default.
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {
+  callback = function()
+    if vim.fn.getcmdwintype() == '' then vim.cmd('silent! checktime') end
   end,
 })
 
