@@ -184,6 +184,18 @@ map('n', '<leader>fr', pick('recent'), { desc = 'Recent files' })
 map('n', '<leader>fh', pick('help'), { desc = 'Help' })
 map({ 'n', 'x' }, '<leader>fw', pick('grep_word'), { desc = 'Word under cursor' })
 
+-- Zoom: show the current window full-screen; press again to restore the layout
+-- (like tmux's Prefix z). Unlike Ctrl+w = it isn't stopped by fixed-width splits.
+-- Alt+z does the same and also works inside terminals (the Claude panel), where
+-- Space is typed as text. A terminal stays in terminal mode after zooming.
+local function zoom()
+  local term = vim.api.nvim_get_mode().mode == 't'
+  Snacks.zen.zoom()
+  if term and vim.bo.buftype == 'terminal' then vim.cmd.startinsert() end
+end
+map('n', '<leader>z', zoom, { desc = 'Zoom window (toggle)' })
+map({ 'n', 't' }, '<M-z>', zoom, { desc = 'Zoom window (toggle)' })
+
 -- Markdown preview in the browser (follows the cursor; only in Markdown buffers)
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'markdown',
