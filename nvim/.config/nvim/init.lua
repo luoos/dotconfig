@@ -93,6 +93,18 @@ map('x', '<leader>ay', function()
 end, { desc = 'Copy @file#L ref' })
 
 -- ── Plugins ──────────────────────────────────────────────────────────────
+-- markdown-preview.nvim needs its preview server binary; fetch it after install/update.
+-- (Must be defined before vim.pack.add so it fires on first install.)
+vim.api.nvim_create_autocmd('PackChanged', {
+  callback = function(ev)
+    local name, kind = ev.data.spec.name, ev.data.kind
+    if name == 'markdown-preview.nvim' and (kind == 'install' or kind == 'update') then
+      if not ev.data.active then vim.cmd.packadd('markdown-preview.nvim') end
+      vim.fn['mkdp#util#install']()
+    end
+  end,
+})
+
 vim.pack.add({
   'https://github.com/folke/snacks.nvim',        -- picker, terminal (used by claudecode)
   'https://github.com/coder/claudecode.nvim',    -- Claude Code integration, like Zed/VS Code
@@ -102,6 +114,7 @@ vim.pack.add({
   'https://github.com/mason-org/mason.nvim',     -- :Mason installs language servers
   'https://github.com/mason-org/mason-lspconfig.nvim', -- enables servers Mason installed
   'https://github.com/christoomey/vim-tmux-navigator', -- Ctrl+h/j/k/l across Neovim and tmux
+  'https://github.com/iamcco/markdown-preview.nvim',   -- live Markdown preview in the browser
 }, { confirm = false })
 
 require('snacks').setup({
@@ -157,6 +170,14 @@ map('n', '<leader>fb', pick('buffers'), { desc = 'Buffers' })
 map('n', '<leader>fr', pick('recent'), { desc = 'Recent files' })
 map('n', '<leader>fh', pick('help'), { desc = 'Help' })
 map({ 'n', 'x' }, '<leader>fw', pick('grep_word'), { desc = 'Word under cursor' })
+
+-- Markdown preview in the browser (follows the cursor; only in Markdown buffers)
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function(ev)
+    map('n', '<leader>mp', '<cmd>MarkdownPreviewToggle<CR>', { buffer = ev.buf, desc = 'Markdown preview' })
+  end,
+})
 
 -- Claude Code. Either open it inside Neovim (<Space>ac), or run `claude` in another
 -- Ghostty split and type /ide there to connect to this Neovim.
