@@ -93,6 +93,18 @@ map('x', '<leader>ay', function()
 end, { desc = 'Copy @file#L ref' })
 
 -- ── Plugins ──────────────────────────────────────────────────────────────
+-- markdown-preview.nvim's page rewrites its address to /<bufnr>, which the server
+-- doesn't serve, so reloading the browser tab gives a 404. Patch the built page to
+-- keep /page/<bufnr> instead. Safe to run repeatedly.
+local function patch_mkdp_reload(dir)
+  local files = vim.fn.glob(dir .. '/app/out/_next/static/*/pages/index.js', false, true)
+  for _, file in ipairs(files) do
+    local text = table.concat(vim.fn.readfile(file, 'b'), '\n')
+    local fixed, n = text:gsub('replaceState%(null,"","/"%.concat', 'replaceState(null,"","/page/".concat')
+    if n > 0 then vim.fn.writefile(vim.split(fixed, '\n', { plain = true }), file, 'b') end
+  end
+end
+
 -- markdown-preview.nvim needs its preview server binary; fetch it after install/update.
 -- (Must be defined before vim.pack.add so it fires on first install.)
 vim.api.nvim_create_autocmd('PackChanged', {
@@ -101,6 +113,7 @@ vim.api.nvim_create_autocmd('PackChanged', {
     if name == 'markdown-preview.nvim' and (kind == 'install' or kind == 'update') then
       if not ev.data.active then vim.cmd.packadd('markdown-preview.nvim') end
       vim.fn['mkdp#util#install']()
+      patch_mkdp_reload(ev.data.path)
     end
   end,
 })
