@@ -80,6 +80,19 @@ t() {
   fi
 }
 alias tl='tmux ls'
+# tk         inside tmux: kill the current session (asks first)
+# tk <name>  kill session <name>
+tk() {
+  if [[ -n $1 ]]; then
+    tmux kill-session -t "=$1"
+  elif [[ -n $TMUX ]]; then
+    local s=$(tmux display-message -p '#S')
+    if read -q "?Kill session $s? (y/n) "; then echo; tmux kill-session -t "=$s"; else echo; fi
+  else
+    echo 'usage: tk <session>   (sessions: tl)' >&2
+    return 1
+  fi
+}
 
 # Machine-specific settings and secrets (not tracked in ~/repo/dotconfig)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
