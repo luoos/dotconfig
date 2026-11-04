@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortcuts</title>
+<!-- Data lives in shortcuts.js; edit that, not this file. -->
+<script src="shortcuts.js"></script>
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --text: #2b2a27; --muted: #77736b; --line: #e6e2d9;
+    --kbd-bg: #f1eee7; --kbd-line: #d6d1c5; --accent: #c2621d; --accent-soft: #fbeee2;
+    --mark: #ffe28a; --focus: #2f6fd6;
+    --ghostty: #6b5bd6; --tmux: #1f9d6b; --zsh: #c2621d; --nvim: #2f7fd6; --vim: #3b8a3b;
+  }
+  /* Always light, even when the OS is in dark mode */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  header {
+    position: sticky; top: 0; z-index: 2; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: 14px 16px 10px;
+  }
+  .bar { max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+  h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; white-space: nowrap; }
+  .search { flex: 1 1 320px; position: relative; }
+  .search input {
+    width: 100%; font: inherit; font-size: 15px; padding: 8px 36px 8px 12px; color: var(--text);
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px; outline: none;
+  }
+  .search input:focus { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent); }
+  .search input:not(:placeholder-shown) + .hint { display: none; }
+  .search .hint {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 12px; pointer-events: none;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font: inherit; font-size: 13px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+  }
+  .chip[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .chip .n { color: var(--muted); margin-left: 4px; font-variant-numeric: tabular-nums; }
+  .chip[aria-pressed="true"] .n { color: inherit; opacity: .7; }
+  .chip.mine[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .legend { max-width: 1400px; margin: 0 auto; padding: 10px 16px 0; color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .legend .swatch { display: inline-block; width: 18px; height: 12px; margin-right: 6px; vertical-align: -1px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent-soft) 70%, transparent); border-radius: 2px; }
+  .legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 5px; vertical-align: 1px; }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 16px; columns: 360px; column-gap: 16px; }
+  section {
+    break-inside: avoid; margin: 0 0 16px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  }
+  section h2 {
+    margin: 0; padding: 9px 12px; font-size: 13.5px; font-weight: 600;
+    border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px;
+  }
+  .app { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--c); }
+  .note { padding: 6px 12px; font-size: 12.5px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .row {
+    display: grid; grid-template-columns: minmax(0, 46%) 1fr; gap: 10px; align-items: baseline;
+    padding: 5px 12px 5px 10px; border-left: 3px solid transparent;
+  }
+  .row + .row { border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+  .row.mine { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+  .keys { display: flex; flex-wrap: wrap; gap: 3px 4px; align-items: center; }
+  kbd {
+    font: 12px/1 ui-monospace, "SF Mono", Menlo, monospace; padding: 3px 5px; min-width: 20px; text-align: center;
+    background: var(--kbd-bg); border: 1px solid var(--kbd-line); border-bottom-width: 2px; border-radius: 4px;
+    white-space: nowrap; color: var(--text);
+  }
+  kbd.special { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--kbd-line)); }
+  kbd.cmd { font-weight: 400; }
+  .plus { color: var(--muted); font-size: 11px; margin: 0 -1px; }
+  .or { color: var(--muted); margin: 0 3px; }
+  .ph { font-style: italic; color: var(--muted); font-size: 12.5px; }
+  .txt { color: var(--muted); }
+  .desc mark { background: var(--mark); color: inherit; border-radius: 2px; }
+  .empty { text-align: center; color: var(--muted); padding: 60px 16px; column-span: all; }
+  footer { max-width: 1400px; margin: 0 auto; padding: 0 16px 24px; color: var(--muted); font-size: 12px; }
+  code { font: 12px ui-monospace, Menlo, monospace; }
+  @media (max-width: 520px) {
+    .row { grid-template-columns: 1fr; gap: 2px; }
+    .search .hint { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>Shortcuts</h1>
+    <div class="search">
+      <input id="q" type="search" placeholder="Search keys or actions — e.g. split, ctrl h, tmux copy, claude" autocomplete="off" spellcheck="false" autofocus>
+      <span class="hint">press /</span>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+<div class="legend">
+  <span><span class="swatch"></span>Orange rows: set up in your dotconfig. Plain rows: built-in defaults.</span>
+  <span><kbd class="special">Prefix</kbd> = tmux <kbd>Ctrl</kbd>+<kbd>b</kbd></span>
+  <span><kbd class="special">Leader</kbd> = <kbd>Space</kbd> in Vim / Neovim</span>
+  <span><kbd>Opt</kbd> works as <kbd>Alt</kbd></span>
+</div>
+<main id="grid"></main>
+<footer>Edit <code>cheatsheet/shortcuts.js</code> when a config's keys change, then run <code>node cheatsheet/check.mjs</code>.</footer>
+
+<script>
+(() => {
+  const APPS = window.APPS, SECTIONS = window.SECTIONS;
+  const appName = Object.fromEntries(APPS.map((a) => [a.id, a.name]));
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ── Keys: rendering and search aliases ────────────────────────────────
+  const LABEL = { Left: '←', Right: '→', Up: '↑', Down: '↓', Plus: '+' };
+  const SPECIAL = { Prefix: 'tmux prefix: Ctrl+b', Leader: 'Leader: Space' };
+  const ALIAS = {
+    ctrl: ['ctrl', 'c', 'control', '^', '⌃'], cmd: ['cmd', 'command', 'super', '⌘'],
+    alt: ['alt', 'opt', 'option', 'meta', 'm', '⌥'], opt: ['alt', 'opt', 'option', 'meta', 'm', '⌥'],
+    shift: ['shift', 's', '⇧'],
+  };
+
+  function renderPress(p) {
+    if (p === '…') return '<span class="txt">…</span>';
+    if (/^<.+>$/.test(p)) return `<span class="ph">${esc(p.slice(1, -1))}</span>`;
+    if (p.startsWith(':')) return `<kbd class="cmd">${esc(p)}</kbd>`;
+    const parts = p.length > 1 && p.includes('+') ? p.split('+').map((x) => x || '+') : [p];
+    return parts.map((x) => {
+      const label = LABEL[x] ?? x.replace(/_/g, ' ');
+      const cls = SPECIAL[x] ? ' class="special"' : '';
+      const title = SPECIAL[x] ? ` title="${SPECIAL[x]}"` : '';
+      return `<kbd${cls}${title}>${esc(label)}</kbd>`;
+    }).join('<span class="plus">+</span>');
+  }
+  const renderSeq = (alt) => alt.split(' ').map(renderPress).join(' ');
+  // "Cmd+[ / Cmd+]" → Cmd + [ / ]   and   "Prefix h / Prefix j" → Prefix h / j
+  function renderKeys(k) {
+    const alts = k.split(' / ');
+    if (alts.length > 1) {
+      let pre = alts[0];
+      for (const a of alts) while (!a.startsWith(pre)) pre = pre.slice(0, -1);
+      pre = pre.slice(0, Math.max(pre.lastIndexOf('+'), pre.lastIndexOf(' ')) + 1);
+      const rest = alts.map((a) => a.slice(pre.length));
+      if (pre && rest.every((r) => r && !/[ +]/.test(r) && r !== '…')) {
+        const tail = rest.map((r) => renderPress(r)).join('<span class="or">/</span>');
+        return pre.endsWith('+')
+          ? renderSeq(pre.slice(0, -1)) + '<span class="plus">+</span>' + tail
+          : renderSeq(pre.trim()) + ' ' + tail;
+      }
+    }
+    return alts.map(renderSeq).join('<span class="or">/</span>');
+  }
+
+  // "Ctrl+h" also findable as "c-h", "^h", "ctrl h"; "Leader f g" as "space f g".
+  function keyAliases(k) {
+    const out = [k];
+    for (const alt of k.split(' / ')) {
+      const presses = alt.split(' ').map((p) => {
+        if (p === 'Leader') return ['leader', 'space', 'spc'];
+        if (p === 'Prefix') return ['prefix', 'ctrl+b', 'c-b'];
+        const parts = p.split('+');
+        if (parts.length < 2) return [p.toLowerCase().replace(/_/g, ' ')];
+        const key = parts.pop().toLowerCase();
+        const mods = parts.map((m) => ALIAS[m.toLowerCase()] || [m.toLowerCase()]);
+        const v = new Set();
+        for (const i of [0, 1, 2]) {
+          const ms = mods.map((m) => m[Math.min(i, m.length - 1)]);
+          for (const sep of ['+', '-', ' ', '']) v.add([...ms, key].join(sep));
+        }
+        mods.forEach((m) => m.forEach((a) => a.length > 1 && v.add(a)));
+        return [...v];
+      });
+      out.push(presses.map((ps) => ps.join(' ')).join(' '));
+    }
+    return out.join(' | ').toLowerCase();
+  }
+
+  // ── Flatten data ──────────────────────────────────────────────────────
+  const rows = [];
+  SECTIONS.forEach((s, si) => {
+    const apps = [].concat(s.app);
+    s.items.forEach((it, ii) => rows.push({
+      si, ii, s, it, apps,
+      mine: it.src != null,
+      f: {
+        keys: keyAliases(it.k),
+        desc: it.d.toLowerCase(),
+        tags: (it.tags || '').toLowerCase(),
+        where: (apps.map((a) => appName[a]).join(' ') + ' ' + s.title + ' ' + (s.note || '')).toLowerCase(),
+      },
+    }));
+  });
+
+  // ── Fuzzy match ───────────────────────────────────────────────────────
+  // A word scores best as a substring at a word start, then anywhere, then as
+  // a loose subsequence ("splt" → "split"). Every word must match somewhere.
+  const WEIGHT = { keys: 1.3, desc: 1.2, tags: 1, where: 0.8 };
+  function subseq(t, s) {
+    const pos = []; let j = 0;
+    for (let i = 0; i < s.length && j < t.length; i++) if (s[i] === t[j]) { pos.push(i); j++; }
+    if (j < t.length) return null;
+    const span = pos[pos.length - 1] - pos[0] + 1;
+    if (span > t.length * 2 + 2) return null;
+    return { score: 30 - (span - t.length) * 3, pos };
+  }
+  function matchWord(t, f) {
+    let best = null;
+    for (const field in WEIGHT) {
+      const s = f[field]; let m = null;
+      const BOUND = /[\s\/(+\-|"'^]/;
+      let i = s.indexOf(t);
+      // A one-letter word only counts as a whole key / word ("h", not the h in "show")
+      if (t.length === 1) {
+        while (i >= 0 && !((i === 0 || BOUND.test(s[i - 1])) && (i + 1 === s.length || /[\s\/)+\-|,.]/.test(s[i + 1])))) i = s.indexOf(t, i + 1);
+      }
+      if (i >= 0) {
+        const start = i === 0 || BOUND.test(s[i - 1]);
+        m = { score: (start ? 100 : 70) + (s.length === t.length ? 20 : 0), pos: [...Array(t.length)].map((_, k) => i + k) };
+      } else if (t.length >= 3 && field !== 'keys') {
+        m = subseq(t, s);
+      }
+      if (m) { m.score *= WEIGHT[field]; m.field = field; if (!best || m.score > best.score) best = m; }
+    }
+    return best;
+  }
+  function score(row, words) {
+    let total = 0; const hl = new Set();
+    for (const w of words) {
+      const m = matchWord(w, row.f);
+      if (!m) return null;
+      total += m.score;
+      if (m.field === 'desc') m.pos.forEach((p) => hl.add(p));
+    }
+    return { total: total + (row.mine ? 5 : 0), hl };
+  }
+  // "ctrl shift h" → "ctrl+shift+h", so modifier words search as one key combo
+  const MODS = new Set(['ctrl', 'control', 'cmd', 'command', 'super', 'alt', 'opt', 'option', 'meta', 'shift', '⌘', '⌃', '⌥', '⇧']);
+  function queryWords(q) {
+    const raw = q.toLowerCase().split(/\s+/).filter(Boolean), out = [];
+    for (let i = 0; i < raw.length; i++) {
+      let w = raw[i];
+      while (MODS.has(w.replace(/[+-]$/, '')) && i + 1 < raw.length) w = w.replace(/[+-]$/, '') + '+' + raw[++i];
+      out.push(w);
+    }
+    return out;
+  }
+  function highlight(text, hl) {
+    if (!hl || !hl.size) return esc(text);
+    let out = '', open = false;
+    for (let i = 0; i < text.length; i++) {
+      const on = hl.has(i);
+      if (on && !open) { out += '<mark>'; open = true; }
+      if (!on && open) { out += '</mark>'; open = false; }
+      out += esc(text[i]);
+    }
+    return out + (open ? '</mark>' : '');
+  }
+
+  // ── State (kept in the URL hash, so reload / bookmarks keep it) ────────
+  const state = { q: '', app: 'all', mine: false };
+  function loadHash() {
+    const h = new URLSearchParams(location.hash.slice(1));
+    state.q = h.get('q') || ''; state.mine = h.get('mine') === '1';
+    state.app = APPS.some((a) => a.id === h.get('app')) ? h.get('app') : 'all';
+  }
+  loadHash();
+  function saveHash() {
+    const h = new URLSearchParams();
+    if (state.q) h.set('q', state.q);
+    if (state.app !== 'all') h.set('app', state.app);
+    if (state.mine) h.set('mine', '1');
+    history.replaceState(null, '', h.toString() ? '#' + h : location.pathname + location.search);
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────
+  const chipsEl = $('#chips'), grid = $('#grid'), input = $('#q');
+  function renderChips(visibleCount) {
+    const count = (id) => rows.filter((r) => id === 'all' || r.apps.includes(id)).length;
+    chipsEl.innerHTML = [{ id: 'all', name: 'All' }, ...APPS].map((a) =>
+      `<button class="chip" data-app="${a.id}" aria-pressed="${state.app === a.id}">${esc(a.name)}<span class="n">${count(a.id)}</span></button>`
+    ).join('') + `<button class="chip mine" data-mine aria-pressed="${state.mine}">Mine only</button>`;
+  }
+  function render() {
+    const words = queryWords(state.q);
+    const groups = new Map();
+    for (const r of rows) {
+      if (state.app !== 'all' && !r.apps.includes(state.app)) continue;
+      if (state.mine && !r.mine) continue;
+      const m = words.length ? score(r, words) : { total: 0, hl: null };
+      if (!m) continue;
+      if (!groups.has(r.si)) groups.set(r.si, { s: r.s, best: 0, items: [] });
+      const g = groups.get(r.si);
+      g.items.push({ r, m }); g.best = Math.max(g.best, m.total);
+    }
+    let list = [...groups.values()];
+    if (words.length) {
+      list.sort((a, b) => b.best - a.best);
+      list.forEach((g) => g.items.sort((a, b) => b.m.total - a.m.total));
+    }
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty">Nothing matches “${esc(state.q)}”${state.app !== 'all' || state.mine ? ' with these filters' : ''}. Try fewer or shorter words.</div>`;
+      return;
+    }
+    grid.innerHTML = list.map(({ s, items }) => {
+      const apps = [].concat(s.app);
+      const badge = apps.map((a) => `<span class="app" style="--c: var(--${a})">${esc(appName[a])}</span>`).join(' · ');
+      return `<section><h2>${badge}<span>${esc(s.title)}</span></h2>` +
+        (s.note ? `<div class="note">${esc(s.note)}</div>` : '') +
+        items.map(({ r, m }) =>
+          `<div class="row${r.mine ? ' mine' : ''}"${r.mine ? ` title="Defined in ${esc(s.file)}"` : ''}>` +
+          `<div class="keys">${renderKeys(r.it.k)}</div>` +
+          `<div class="desc">${highlight(r.it.d, m.hl)}</div></div>`
+        ).join('') + '</section>';
+    }).join('');
+  }
+  function update() { saveHash(); renderChips(); render(); }
+
+  input.value = state.q;
+  input.addEventListener('input', () => { state.q = input.value; saveHash(); render(); });
+  chipsEl.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-mine')) state.mine = !state.mine;
+    else state.app = b.dataset.app;
+    update();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== input) { e.preventDefault(); input.focus(); input.select(); }
+    else if (e.key === 'Escape') {
+      if (input.value) { input.value = ''; state.q = ''; saveHash(); render(); } else input.blur();
+    }
+  });
+  window.addEventListener('hashchange', () => { loadHash(); input.value = state.q; renderChips(); render(); });
+  update();
+})();
+</script>
+</body>
+</html>

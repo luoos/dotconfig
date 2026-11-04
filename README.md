@@ -121,6 +121,30 @@ On a Linux desktop (not over SSH), install `wl-clipboard` (Wayland) or `xclip`
   the repo.
 - **Re-check links after moving things:** `stow -R <package>`.
 
+## Keyboard cheatsheet
+
+`cheatsheet/index.html` is a searchable page of every shortcut set up in this
+repo, plus the common built-in ones, for all five tools. Open it in a browser:
+
+```bash
+open ~/repo/dotconfig/cheatsheet/index.html
+```
+
+Type to filter (fuzzy: `splt`, `ctrl h`, `tmux copy`, `leader f`), press `/` to
+jump to the search box and `Esc` to clear it. Rows with an orange edge are
+defined in these configs; the rest are defaults. Filters live in the URL, so
+`index.html#app=tmux` can be bookmarked.
+
+**When you change a key binding**, update `cheatsheet/shortcuts.js` (the page's
+only data; format at the top of the file) and run:
+
+```bash
+node cheatsheet/check.mjs
+```
+
+It fails if a cheatsheet entry no longer matches its config, or if a config has
+a binding the cheatsheet doesn't list.
+
 ## Checking the links
 
 Editing a config in `~` only reaches this repo while it's still a symlink. Some
