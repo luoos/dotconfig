@@ -20,6 +20,10 @@ bindkey -M viins '^E' end-of-line
 bindkey -M viins '^W' backward-kill-word
 bindkey -M viins '^?' backward-delete-char   # backspace past where insert began
 bindkey -M viins '^H' backward-delete-char
+# Opt+Left/Right (Ghostty sends Esc b / Esc f) move by word instead of
+# being read as Esc (normal mode) then b / f
+bindkey -M viins '^[b' backward-word
+bindkey -M viins '^[f' forward-word
 
 # Up/Down (and k/j in normal mode) search history by what's already typed
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
