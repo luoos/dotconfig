@@ -151,6 +151,7 @@ require('which-key').setup({ delay = 300 })
 require('which-key').add({
   { '<leader>a', group = 'AI / Claude' },
   { '<leader>f', group = 'Find' },
+  { '<leader>g', group = 'Git' },
 })
 
 -- ── Language servers (go to definition, completion, diagnostics) ─────────
@@ -195,6 +196,20 @@ local function zoom()
 end
 map('n', '<leader>z', zoom, { desc = 'Zoom window (toggle)' })
 map({ 'n', 't' }, '<M-z>', zoom, { desc = 'Zoom window (toggle)' })
+
+-- Git: whole project in the snacks picker (Tab stages, Ctrl+r discards), and the
+-- change under the cursor with gitsigns
+local gs = require('gitsigns')
+map('n', '<leader>gs', pick('git_status'), { desc = 'Status (Tab stages)' })
+map('n', '<leader>gd', pick('git_diff'), { desc = 'All changes' })
+map('n', '<leader>gl', pick('git_log_file'), { desc = 'File history' })
+map('n', '<leader>gD', gs.diffthis, { desc = 'Diff this file (side by side)' })
+map('n', ']h', function() gs.nav_hunk('next') end, { desc = 'Next change' })
+map('n', '[h', function() gs.nav_hunk('prev') end, { desc = 'Previous change' })
+map('n', '<leader>gp', gs.preview_hunk_inline, { desc = 'Preview change' })
+map('n', '<leader>gS', gs.stage_hunk, { desc = 'Stage / unstage change' })
+map('n', '<leader>gr', gs.reset_hunk, { desc = 'Reset change' })
+map('n', '<leader>gb', gs.blame_line, { desc = 'Blame line' })
 
 -- Markdown preview in the browser (follows the cursor; only in Markdown buffers)
 vim.api.nvim_create_autocmd('FileType', {

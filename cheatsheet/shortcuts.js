@@ -190,6 +190,19 @@ window.SECTIONS = [
     ],
   },
   {
+    app: 'nvim', title: 'Git', file: 'nvim/.config/nvim/init.lua',
+    items: [
+      { k: 'Leader g s', d: 'Status: changed files + diff (Tab stages, Ctrl+r discards)', src: "map('n', '<leader>gs'", tags: 'git status stage' },
+      { k: 'Leader g d', d: 'All changes across the project, one per hunk', src: "map('n', '<leader>gd'", tags: 'git diff hunks' },
+      { k: 'Leader g l', d: 'History of this file', src: "map('n', '<leader>gl'", tags: 'git log commits' },
+      { k: 'Leader g D', d: 'Side-by-side diff of this file (Ctrl+w o closes)', src: "map('n', '<leader>gD'", tags: 'git diff split' },
+      { k: '] h / [ h', d: 'Next / previous change in this file', src: ["map('n', ']h'", "map('n', '[h'"], tags: 'git hunk jump' },
+      { k: 'Leader g p', d: 'Preview the change under the cursor', src: "map('n', '<leader>gp'", tags: 'git hunk diff' },
+      { k: 'Leader g S / Leader g r', d: 'Stage (again: unstage) / reset the change under the cursor', src: ["map('n', '<leader>gS'", "map('n', '<leader>gr'"], tags: 'git hunk add discard undo' },
+      { k: 'Leader g b', d: 'Blame: who last changed this line', src: "map('n', '<leader>gb'", tags: 'git blame commit' },
+    ],
+  },
+  {
     app: 'nvim', title: 'Claude Code', file: 'nvim/.config/nvim/init.lua',
     items: [
       { k: 'Leader a c', d: 'Toggle Claude panel', src: "'<leader>ac'", tags: 'ai open' },
