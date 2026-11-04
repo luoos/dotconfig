@@ -50,7 +50,15 @@
   .legend .swatch { display: inline-block; width: 18px; height: 12px; margin-right: 6px; vertical-align: -1px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent-soft) 70%, transparent); border-radius: 2px; }
   .legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 5px; vertical-align: 1px; }
 
-  main { max-width: 1400px; margin: 0 auto; padding: 16px; columns: 360px; column-gap: 16px; }
+  main { max-width: 1400px; margin: 0 auto; padding: 4px 16px 16px; }
+  .tool { margin-top: 18px; }
+  .tool-head {
+    display: flex; align-items: center; gap: 10px; margin: 0 0 10px;
+    font-size: 15px; font-weight: 700; color: var(--c); letter-spacing: -0.01em;
+  }
+  .tool-head::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: color-mix(in srgb, var(--c) 35%, transparent); }
+  .tool-head .n { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .cards { columns: 360px; column-gap: 16px; }
   section {
     break-inside: avoid; margin: 0 0 16px; background: var(--card);
     border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
@@ -59,7 +67,6 @@
     margin: 0; padding: 9px 12px; font-size: 13.5px; font-weight: 600;
     border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px;
   }
-  .app { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--c); }
   .note { padding: 6px 12px; font-size: 12.5px; color: var(--muted); border-bottom: 1px solid var(--line); }
   .row {
     display: grid; grid-template-columns: minmax(0, 46%) 1fr; gap: 10px; align-items: baseline;
@@ -80,7 +87,7 @@
   .ph { font-style: italic; color: var(--muted); font-size: 12.5px; }
   .txt { color: var(--muted); }
   .desc mark { background: var(--mark); color: inherit; border-radius: 2px; }
-  .empty { text-align: center; color: var(--muted); padding: 60px 16px; column-span: all; }
+  .empty { text-align: center; color: var(--muted); padding: 60px 16px; }
   footer { max-width: 1400px; margin: 0 auto; padding: 0 16px 24px; color: var(--muted); font-size: 12px; }
   code { font: 12px ui-monospace, Menlo, monospace; }
   @media (max-width: 520px) {
@@ -287,7 +294,7 @@
   }
   function render() {
     const words = queryWords(state.q);
-    const groups = new Map();
+    const groups = new Map();  // section index → its matching rows
     for (const r of rows) {
       if (state.app !== 'all' && !r.apps.includes(state.app)) continue;
       if (state.mine && !r.mine) continue;
@@ -302,20 +309,34 @@
       list.sort((a, b) => b.best - a.best);
       list.forEach((g) => g.items.sort((a, b) => b.m.total - a.m.total));
     }
+    // One band per tool. A section shared by several tools (Vim & Neovim basics)
+    // goes under the filtered tool, else under the first one it lists.
+    const tools = new Map();
+    for (const g of list) {
+      const id = state.app !== 'all' ? state.app : [].concat(g.s.app)[0];
+      if (!tools.has(id)) tools.set(id, { id, best: 0, sections: [] });
+      const t = tools.get(id);
+      t.sections.push(g); t.best = Math.max(t.best, g.best);
+    }
+    let toolList = [...tools.values()];
+    if (words.length) toolList.sort((a, b) => b.best - a.best);
+    else toolList.sort((a, b) => APPS.findIndex((x) => x.id === a.id) - APPS.findIndex((x) => x.id === b.id));
     if (!list.length) {
       grid.innerHTML = `<div class="empty">Nothing matches “${esc(state.q)}”${state.app !== 'all' || state.mine ? ' with these filters' : ''}. Try fewer or shorter words.</div>`;
       return;
     }
-    grid.innerHTML = list.map(({ s, items }) => {
-      const apps = [].concat(s.app);
-      const badge = apps.map((a) => `<span class="app" style="--c: var(--${a})">${esc(appName[a])}</span>`).join(' · ');
-      return `<section><h2>${badge}<span>${esc(s.title)}</span></h2>` +
+    const card = ({ s, items }) =>
+      `<section><h2>${esc(s.title)}</h2>` +
         (s.note ? `<div class="note">${esc(s.note)}</div>` : '') +
         items.map(({ r, m }) =>
           `<div class="row${r.mine ? ' mine' : ''}"${r.mine ? ` title="Defined in ${esc(s.file)}"` : ''}>` +
           `<div class="keys">${renderKeys(r.it.k)}</div>` +
           `<div class="desc">${highlight(r.it.d, m.hl)}</div></div>`
         ).join('') + '</section>';
+    grid.innerHTML = toolList.map((t) => {
+      const n = t.sections.reduce((a, g) => a + g.items.length, 0);
+      return `<div class="tool" style="--c: var(--${t.id})"><h2 class="tool-head">${esc(appName[t.id])}<span class="n">${n}</span></h2>` +
+        `<div class="cards">${t.sections.map(card).join('')}</div></div>`;
     }).join('');
   }
   function update() { saveHash(); renderChips(); render(); }
