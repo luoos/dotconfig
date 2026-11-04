@@ -161,6 +161,12 @@ window.SECTIONS = [
       { k: 'Ctrl+c', d: 'Cancel line / interrupt' },
     ],
   },
+  {
+    app: 'zsh', title: 'Commands', file: 'zsh/.zshrc',
+    items: [
+      { k: 'v <file>', d: 'Shell: open Neovim (vim still opens plain Vim)', src: "alias v='nvim'", tags: 'command nvim editor alias' },
+    ],
+  },
 
   // ── Neovim ─────────────────────────────────────────────────────────────
   {

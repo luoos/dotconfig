@@ -40,6 +40,9 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd 'v' edit-command-line
 
+# v [file]   open Neovim (vim still runs plain Vim with ~/.vimrc)
+alias v='nvim'
+
 # Cursor shape: block in normal mode, beam in insert mode
 autoload -Uz add-zle-hook-widget add-zsh-hook
 _vi_cursor() {
