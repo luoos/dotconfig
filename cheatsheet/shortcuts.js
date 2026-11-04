@@ -9,20 +9,22 @@
 //   k     keys. Space = press one after another, '+' = hold together,
 //         ' / ' separates alternatives, '_' is a space inside one key
 //         (Mouse_drag), <name> is a placeholder you type, '…' is plain text.
-//         'Prefix' = tmux prefix (Ctrl+b), 'Leader' = Space in Vim/Neovim.
+//         'Prefix' = the tmux prefix (APPS tmux.prefix), 'Leader' = Space.
 //         Write a literal + as 'Plus'.
 //   d     what it does
-//   src   text that appears in `file` on the line that defines it (a string
-//         or an array). Having src marks the item as set up in this repo
+//   src   text from the line in `file` that defines it (a string or an
+//         array). Each src must match exactly one non-comment line, so keep it
+//         specific (e.g. include the mode). Having src marks it as set up here
 //         ("mine"); items without it are the tool's built-in defaults.
 //   tags  extra search words
 
+// Order here is the order of the filter buttons and of the tools on the page.
 window.APPS = [
-  { id: 'ghostty', name: 'Ghostty' },
-  { id: 'tmux', name: 'tmux' },
-  { id: 'zsh', name: 'zsh' },
   { id: 'nvim', name: 'Neovim' },
+  { id: 'tmux', name: 'tmux', prefix: 'Ctrl+b' },  // check.mjs compares with .tmux.conf
+  { id: 'zsh', name: 'zsh' },
   { id: 'vim', name: 'Vim' },
+  { id: 'ghostty', name: 'Ghostty' },
 ];
 
 window.SECTIONS = [
@@ -34,6 +36,7 @@ window.SECTIONS = [
       { k: 'Cmd+Shift+d', d: 'Split down', src: 'cmd+shift+d=new_split:down', tags: 'horizontal new pane' },
       { k: 'Cmd+Shift+Left / Cmd+Shift+Right / Cmd+Shift+Up / Cmd+Shift+Down', d: 'Go to split in that direction', src: ['goto_split:left', 'goto_split:right', 'goto_split:up', 'goto_split:down'], tags: 'move focus pane arrow' },
       { k: 'Cmd+Shift+Enter', d: 'Zoom / unzoom split', src: 'toggle_split_zoom', tags: 'maximize fullscreen pane' },
+      { k: 'Cmd+Opt+Left / Cmd+Opt+Right / Cmd+Opt+Up / Cmd+Opt+Down', d: 'Go to split in that direction (default keys)', tags: 'move focus pane arrow' },
       { k: 'Cmd+[ / Cmd+]', d: 'Previous / next split' },
       { k: 'Cmd+Ctrl+Left / Cmd+Ctrl+Right', d: 'Resize split (any arrow)' },
       { k: 'Cmd+Ctrl+=', d: 'Make splits equal size', tags: 'equalize' },
@@ -71,7 +74,7 @@ window.SECTIONS = [
   // ── tmux ───────────────────────────────────────────────────────────────
   {
     app: 'tmux', title: 'Sessions', file: 'zsh/.zshrc',
-    note: 'Prefix is Ctrl+b. Press it, let go, then the key.',
+    note: 'Press the prefix, let go, then the key.',
     items: [
       { k: 't', d: 'Shell: attach to latest session, or create "main"', src: 't() {', tags: 'command attach start' },
       { k: 't <name>', d: 'Shell: attach / create / switch to session <name>', src: 'tmux switch-client -t', tags: 'command attach new' },
@@ -98,9 +101,10 @@ window.SECTIONS = [
     items: [
       { k: 'Prefix |', d: 'Split left / right (current directory)', src: 'bind | split-window', tags: 'vertical pipe' },
       { k: 'Prefix -', d: 'Split top / bottom (current directory)', src: 'bind - split-window', tags: 'horizontal dash' },
-      { k: 'Ctrl+h / Ctrl+j / Ctrl+k / Ctrl+l', d: 'Move between panes and Neovim windows (no prefix)', src: ['bind -n C-h', 'bind -n C-j', 'bind -n C-k', 'bind -n C-l', 'copy-mode-vi C-h', 'copy-mode-vi C-j', 'copy-mode-vi C-k', 'copy-mode-vi C-l'], tags: 'navigate focus vim-tmux-navigator' },
+      { k: 'Ctrl+h / Ctrl+j / Ctrl+k / Ctrl+l', d: 'Move between panes and Neovim windows, no prefix. Not out of a Vim pane: use Prefix h/j/k/l', src: ['bind -n C-h', 'bind -n C-j', 'bind -n C-k', 'bind -n C-l', 'copy-mode-vi C-h', 'copy-mode-vi C-j', 'copy-mode-vi C-k', 'copy-mode-vi C-l'], tags: 'navigate focus vim-tmux-navigator' },
       { k: 'Prefix h / Prefix j / Prefix k / Prefix l', d: 'Select pane left / down / up / right (l replaces "last window")', src: ['bind h select-pane', 'bind j select-pane', 'bind k select-pane', 'bind l select-pane'], tags: 'navigate focus' },
       { k: 'Prefix H / Prefix J / Prefix K / Prefix L', d: 'Resize pane by 5 (repeatable)', src: ['bind -r H', 'bind -r J', 'bind -r K', 'bind -r L'] },
+      { k: 'Prefix % / Prefix "', d: 'Split left / right, top / bottom (defaults; | and - keep the current directory)', tags: 'vertical horizontal' },
       { k: 'Prefix z', d: 'Zoom / unzoom pane', tags: 'maximize fullscreen' },
       { k: 'Prefix x', d: 'Kill pane', tags: 'close' },
       { k: 'Prefix q', d: 'Show pane numbers (press one to jump)' },
@@ -114,13 +118,14 @@ window.SECTIONS = [
   {
     app: 'tmux', title: 'Copy mode (vi keys)', file: 'tmux/.tmux.conf',
     items: [
-      { k: 'PageUp', d: 'Scroll back without prefix (fn+Up on a Mac)', src: 'bind -n PageUp', tags: 'scroll history' },
+      { k: 'PageUp', d: 'Scroll back without prefix (fn+Up on a Mac)', src: 'bind -n PageUp', tags: 'scroll history page up' },
       { k: 'Prefix v / Prefix [', d: 'Enter copy mode', src: 'bind v copy-mode', tags: 'scroll' },
       { k: 'v', d: 'Start selection', src: 'copy-mode-vi v send -X begin-selection' },
       { k: 'Ctrl+v', d: 'Toggle rectangle selection', src: 'rectangle-toggle', tags: 'block column' },
       { k: 'y', d: 'Copy to clipboard and exit (works over SSH)', src: 'copy-mode-vi y send', tags: 'yank osc52' },
       { k: 'Mouse_drag', d: 'Select and copy to clipboard', src: 'MouseDragEnd1Pane' },
       { k: '/ / ?', d: 'Search down / up (n / N: next / previous)', tags: 'find' },
+      { k: 'Prefix ]', d: 'Paste the last copied text (tmux buffer)', tags: 'paste buffer' },
       { k: 'q', d: 'Exit copy mode', tags: 'quit escape' },
     ],
   },
@@ -130,7 +135,7 @@ window.SECTIONS = [
       { k: 'Prefix r', d: 'Reload ~/.tmux.conf', src: 'bind r source-file', tags: 'refresh config' },
       { k: 'Prefix ?', d: 'List all key bindings', tags: 'help' },
       { k: 'Prefix :', d: 'Command prompt' },
-      { k: 'Prefix Ctrl+b', d: 'Send prefix to nested tmux (e.g. over SSH)', tags: 'nested remote ssh' },
+      { k: 'Prefix Prefix', d: 'Send the prefix to a nested tmux (e.g. over SSH)', tags: 'nested remote ssh twice' },
     ],
   },
 
@@ -146,10 +151,10 @@ window.SECTIONS = [
       { k: 'Ctrl+r', d: 'Search history backwards', src: "'^R'", tags: 'reverse find' },
       { k: 'Ctrl+a / Ctrl+e', d: 'Start / end of line', src: ["'^A'", "'^E'"], tags: 'home end beginning' },
       { k: 'Ctrl+w', d: 'Delete word before cursor', src: "'^W'", tags: 'kill' },
-      { k: 'Backspace / Ctrl+h', d: 'Delete char (even before insert point)', src: ["'^?'", "'^H'"] },
-      { k: 'Opt+Left / Opt+Right', d: 'Move by word (Ghostty Opt = Alt)', tags: 'jump' },
+      { k: 'Backspace / Ctrl+h', d: 'Delete char, even before insert point (Ctrl+h only outside tmux)', src: ["'^?'", "'^H'"] },
+      { k: 'Opt+Left / Opt+Right', d: 'Move back / forward one word', src: ["'^[b' backward-word", "'^[f' forward-word"], tags: 'jump alt' },
       { k: 'Tab', d: 'Complete' },
-      { k: 'Ctrl+l', d: 'Clear screen' },
+      { k: 'Ctrl+l', d: 'Clear screen (in tmux: Prefix Ctrl+l)' },
       { k: 'Ctrl+c', d: 'Cancel line / interrupt' },
     ],
   },
@@ -158,7 +163,7 @@ window.SECTIONS = [
   {
     app: 'nvim', title: 'Windows & tmux', file: 'nvim/.config/nvim/init.lua',
     items: [
-      { k: 'Ctrl+h / Ctrl+j / Ctrl+k / Ctrl+l', d: 'Move between windows, on into tmux panes', src: ["'<C-h>', '<cmd>TmuxNavigateLeft", "'<C-j>'", "'<C-k>'", "'<C-l>'"], tags: 'navigate focus split' },
+      { k: 'Ctrl+h / Ctrl+j / Ctrl+k / Ctrl+l', d: 'Move between windows, on into tmux panes', src: ["map('n', '<C-h>'", "map('n', '<C-j>'", "map('n', '<C-k>'", "map('n', '<C-l>'"], tags: 'navigate focus split' },
       { k: 'Ctrl+h', d: '(terminal mode) Jump to window on the left', src: "map('t', '<C-h>'", tags: 'claude panel' },
       { k: 'Ctrl+\\ Ctrl+n', d: 'Leave terminal mode (to scroll / copy)', tags: 'escape normal' },
       { k: 'Leader z / Alt+z', d: 'Zoom window full-screen / restore layout. Alt+z also works in the Claude panel', src: ["'<leader>z', zoom", "'<M-z>', zoom"], tags: 'maximize fullscreen toggle terminal' },
@@ -178,7 +183,7 @@ window.SECTIONS = [
       { k: 'Leader f b', d: 'Open buffers', src: "'<leader>fb'" },
       { k: 'Leader f r', d: 'Recent files', src: "'<leader>fr'", tags: 'history' },
       { k: 'Leader f h', d: 'Search help', src: "'<leader>fh'" },
-      { k: 'Alt+h / Alt+i', d: '(in picker) Toggle hidden / ignored files', src: 'Alt+h / Alt+i' },
+      { k: 'Alt+h / Alt+i', d: '(in picker) Toggle hidden / ignored files' },
     ],
   },
   {
@@ -189,9 +194,9 @@ window.SECTIONS = [
       { k: 'Leader a r', d: 'Resume a conversation', src: "'<leader>ar'" },
       { k: 'Leader a C', d: 'Continue last conversation', src: "'<leader>aC'" },
       { k: 'Leader a b', d: 'Add current file to context', src: "'<leader>ab'", tags: 'buffer' },
-      { k: 'Leader a s', d: 'Send current line / selection', src: "'<leader>as'" },
+      { k: 'Leader a s', d: 'Send current line / selection', src: ["map('x', '<leader>as'", "map('n', '<leader>as'"] },
       { k: 'Leader a a / Leader a d', d: 'Accept / deny proposed diff', src: ["'<leader>aa'", "'<leader>ad'"] },
-      { k: 'Leader a y', d: 'Copy "@file#L12" (or range) for any agent', src: "'<leader>ay'", tags: 'reference line path clipboard' },
+      { k: 'Leader a y', d: 'Copy "@file#L12" (or range) for any agent', src: ["map('n', '<leader>ay'", "map('x', '<leader>ay'"], tags: 'reference line path clipboard' },
     ],
   },
   {
@@ -206,6 +211,7 @@ window.SECTIONS = [
       { k: 'g r a', d: 'Code action', tags: 'fix quickfix' },
       { k: 'g r r', d: 'References', tags: 'usages' },
       { k: 'g r i', d: 'Implementation' },
+      { k: 'g O', d: 'Outline: symbols in this file', tags: 'document symbols' },
       { k: 'Ctrl+s', d: '(insert) Signature help', tags: 'parameters' },
       { k: '[ d / ] d', d: 'Previous / next diagnostic', tags: 'error warning' },
       { k: 'Ctrl+w d', d: 'Show diagnostic under cursor', tags: 'error float' },
@@ -214,7 +220,7 @@ window.SECTIONS = [
   {
     app: 'nvim', title: 'Editing extras', file: 'nvim/.config/nvim/init.lua',
     items: [
-      { k: 'Alt+j / Alt+k', d: 'Move line / selection down / up', src: ["'<M-j>'", "'<M-k>'"], tags: 'swap' },
+      { k: 'Alt+j / Alt+k', d: 'Move line / selection down / up', src: ["map('n', '<M-j>'", "map('n', '<M-k>'", "map('x', '<M-j>'", "map('x', '<M-k>'"], tags: 'swap' },
       { k: 'Esc', d: 'Clear search highlight', src: "'<Esc>', '<cmd>nohlsearch" },
       { k: 'g c c / g c', d: 'Comment line / selection or motion', tags: 'toggle' },
       { k: 'Leader m p', d: 'Markdown preview in browser (Markdown files)', src: "'<leader>mp'" },
@@ -226,11 +232,11 @@ window.SECTIONS = [
   {
     app: ['nvim', 'vim'], title: 'Motions (Vim & Neovim)',
     items: [
-      { k: 'h j k l', d: 'Left / down / up / right' },
+      { k: 'h / j / k / l', d: 'Left / down / up / right' },
       { k: 'w / b / e', d: 'Next word / previous word / end of word' },
       { k: '0 / ^ / $', d: 'Line start / first character / line end' },
       { k: 'g g / G', d: 'First / last line (12G: line 12)', tags: 'top bottom' },
-      { k: 'f x / t x', d: 'Jump to / before next "x" (; , repeat)', tags: 'find char' },
+      { k: 'f <char> / t <char>', d: 'Jump to / just before next <char> (; , repeat)', tags: 'find char' },
       { k: '%', d: 'Jump to matching bracket' },
       { k: 'Ctrl+d / Ctrl+u', d: 'Half page down / up (smooth in Neovim)', tags: 'scroll' },
       { k: 'z z', d: 'Center cursor line on screen' },
@@ -246,7 +252,7 @@ window.SECTIONS = [
       { k: 'I / A', d: 'Insert at line start / end' },
       { k: 'o / O', d: 'New line below / above' },
       { k: 'v / V / Ctrl+v', d: 'Visual: chars / lines / block', tags: 'select' },
-      { k: 'd d / y y / p', d: 'Delete line / yank line / paste (system clipboard)', tags: 'cut copy' },
+      { k: 'd d / y y / p', d: 'Delete line / yank line / paste (system clipboard in Neovim; Vim only if built +clipboard)', tags: 'cut copy' },
       { k: 'c i w', d: 'Change inner word (also di", ya), ci( …)', tags: 'text object' },
       { k: 'u / Ctrl+r', d: 'Undo / redo (persists after closing)', tags: 'undofile' },
       { k: '.', d: 'Repeat last change' },
