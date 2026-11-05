@@ -186,6 +186,7 @@ window.SECTIONS = [
   {
     app: 'nvim', title: 'Find (snacks picker)', file: 'nvim/.config/nvim/init.lua',
     items: [
+      { k: 'Ctrl+n / Leader e', d: 'Toggle left file explorer sidebar', src: ["'<C-n>'", "'<leader>e'", "'<leader>fe'"], tags: 'sidebar tree files explore directory neotree' },
       { k: 'Leader Leader / Leader f f', d: 'Find files (includes dotfiles)', src: ["'<leader><leader>'", "'<leader>ff'"], tags: 'open search fuzzy' },
       { k: 'Leader f g', d: 'Grep in project', src: "'<leader>fg'", tags: 'search text ripgrep' },
       { k: 'Leader f w', d: 'Grep word under cursor / selection', src: "'<leader>fw'" },

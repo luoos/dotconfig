@@ -136,6 +136,15 @@ require('snacks').setup({
   picker = {
     enabled = true,
     sources = { files = { hidden = true }, grep = { hidden = true } },
+    win = {
+      list = {
+        keys = {
+          ['w'] = { { 'pick_win', 'jump' }, desc = 'Pick window' },
+          ['v'] = { 'edit_vsplit', desc = 'Split vertical' },
+          ['s'] = { 'edit_split', desc = 'Split horizontal' },
+        },
+      },
+    },
   },
   terminal = { enabled = true },
   input = { enabled = true },
@@ -177,6 +186,17 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 -- Finding things (snacks picker)
 local pick = function(name) return function() Snacks.picker[name]() end end
+local function toggle_explorer()
+  local explorer = Snacks.picker.get({ source = 'explorer' })[1]
+  if explorer then
+    explorer:close()
+  else
+    Snacks.explorer()
+  end
+end
+map('n', '<C-n>', toggle_explorer, { desc = 'Toggle file explorer sidebar' })
+map('n', '<leader>e', toggle_explorer, { desc = 'Toggle file explorer sidebar' })
+map('n', '<leader>fe', toggle_explorer, { desc = 'Toggle file explorer sidebar' })
 map('n', '<leader><leader>', pick('files'), { desc = 'Find files' })
 map('n', '<leader>ff', pick('files'), { desc = 'Files' })
 map('n', '<leader>fg', pick('grep'), { desc = 'Grep' })
@@ -249,3 +269,11 @@ map('n', '<leader>as', function()
 end, { desc = 'Send current line' })
 map('n', '<leader>aa', '<cmd>ClaudeCodeDiffAccept<CR>', { desc = 'Accept diff' })
 map('n', '<leader>ad', '<cmd>ClaudeCodeDiffDeny<CR>', { desc = 'Deny diff' })
+
+-- ── Local machine overrides ────────────────────────────────────────────────
+-- Machine-specific config (not tracked in git), analogous to ~/.zshrc.local
+local local_config = vim.fn.expand('~/.config/nvim/init.local.lua')
+if vim.uv.fs_stat(local_config) then
+  dofile(local_config)
+end
+
