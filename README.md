@@ -124,7 +124,8 @@ On a Linux desktop (not over SSH), install `wl-clipboard` (Wayland) or `xclip`
 ## Keyboard cheatsheet
 
 `cheatsheet/index.html` is a searchable page of every shortcut set up in this
-repo, plus the common built-in ones, for all five tools. Open it in a browser:
+repo, plus the common built-in ones, for all five tools. View it online at
+https://luoos.github.io/dotconfig/cheatsheet/ or open it locally:
 
 ```bash
 open ~/repo/dotconfig/cheatsheet/index.html
