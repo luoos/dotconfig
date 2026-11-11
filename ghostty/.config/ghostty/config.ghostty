@@ -2,7 +2,7 @@
 
 # --- Appearance ---
 # Light theme matching Neovim's Catppuccin Latte
-theme = catppuccin-latte
+theme = Catppuccin Latte
 # Built-in JetBrains Mono (includes Nerd Font symbols)
 font-size = 14
 window-padding-x = 10
