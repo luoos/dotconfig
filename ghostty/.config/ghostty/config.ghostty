@@ -1,8 +1,8 @@
 # Ghostty config — reload with Cmd+Shift+, ; see all options: ghostty +show-config --default --docs
 
 # --- Appearance ---
-# Light theme; Vim uses the same palette via its ANSI colors (see ~/.vimrc)
-theme = Breadog
+# Light theme matching Neovim's Catppuccin Latte
+theme = catppuccin-latte
 # Built-in JetBrains Mono (includes Nerd Font symbols)
 font-size = 14
 window-padding-x = 10
