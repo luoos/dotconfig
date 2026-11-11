@@ -38,17 +38,9 @@ o.splitbelow = true
 o.updatetime = 250
 o.confirm = true              -- ask instead of failing on :q with unsaved changes
 
--- ── Colors: use Ghostty's 16-color palette (Breadog), like ~/.vimrc ─────
-o.termguicolors = false
+-- ── Colors ────────────────────────────────────────────────────────────────
+o.termguicolors = true
 o.background = 'light'
-vim.cmd.colorscheme('default')
-local function search_colors()
-  vim.api.nvim_set_hl(0, 'Search', { ctermfg = 0, ctermbg = 7 })
-  vim.api.nvim_set_hl(0, 'CurSearch', { ctermfg = 15, ctermbg = 11, bold = true })
-  vim.api.nvim_set_hl(0, 'IncSearch', { ctermfg = 15, ctermbg = 11, bold = true })
-end
-search_colors()
-vim.api.nvim_create_autocmd('ColorScheme', { callback = search_colors })
 
 -- ── Keymaps ──────────────────────────────────────────────────────────────
 local map = vim.keymap.set
@@ -105,6 +97,12 @@ local function patch_mkdp_reload(dir)
   end
 end
 
+-- Add Mason's bin directory to PATH so tools like tree-sitter and LSPs are accessible
+local mason_bin = vim.fn.stdpath('data') .. '/mason/bin'
+if not vim.env.PATH:find(mason_bin, 1, true) then
+  vim.env.PATH = mason_bin .. ':' .. vim.env.PATH
+end
+
 -- markdown-preview.nvim needs its preview server binary; fetch it after install/update.
 -- (Must be defined before vim.pack.add so it fires on first install.)
 vim.api.nvim_create_autocmd('PackChanged', {
@@ -114,6 +112,10 @@ vim.api.nvim_create_autocmd('PackChanged', {
       if not ev.data.active then vim.cmd.packadd('markdown-preview.nvim') end
       vim.fn['mkdp#util#install']()
       patch_mkdp_reload(ev.data.path)
+    end
+    if name == 'nvim-treesitter' and (kind == 'install' or kind == 'update') then
+      if not ev.data.active then vim.cmd.packadd('nvim-treesitter') end
+      pcall(vim.cmd, 'TSUpdate')
     end
   end,
 })
@@ -128,7 +130,43 @@ vim.pack.add({
   'https://github.com/mason-org/mason-lspconfig.nvim', -- enables servers Mason installed
   'https://github.com/christoomey/vim-tmux-navigator', -- Ctrl+h/j/k/l across Neovim and tmux
   'https://github.com/iamcco/markdown-preview.nvim',   -- live Markdown preview in the browser
+  { src = 'https://github.com/catppuccin/nvim', name = 'catppuccin' },
+  'https://github.com/nvim-treesitter/nvim-treesitter',
 }, { confirm = false })
+
+-- ── Theme: Catppuccin ─────────────────────────────────────────────────────
+local catppuccin_ok, catppuccin = pcall(require, 'catppuccin')
+if catppuccin_ok then
+  catppuccin.setup({
+    flavour = 'latte', -- latte (light), frappe, macchiato, mocha (dark)
+    background = {
+      light = 'latte',
+      dark = 'mocha',
+    },
+    integrations = {
+      treesitter = true,
+      gitsigns = true,
+      which_key = true,
+      snacks = true,
+      mason = true,
+    },
+  })
+  vim.cmd.colorscheme('catppuccin')
+else
+  vim.cmd.colorscheme('default')
+end
+
+-- ── Tree-sitter (enhanced syntax highlighting) ───────────────────────────
+local ts_ok, ts = pcall(require, 'nvim-treesitter')
+if ts_ok then
+  ts.setup()
+  -- Neovim 0.12 native Tree-sitter highlighting
+  vim.api.nvim_create_autocmd('FileType', {
+    callback = function()
+      pcall(vim.treesitter.start)
+    end,
+  })
+end
 
 require('snacks').setup({
   -- Include dotfiles (.zshrc, .config/...) in file search and grep; .git and
