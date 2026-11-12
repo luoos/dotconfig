@@ -29,7 +29,7 @@ tracked.
 1. Install the tools:
 
    ```bash
-   brew install stow tmux neovim powerlevel10k fzf
+   brew install stow tmux neovim powerlevel10k fzf ripgrep
    brew install --cask ghostty
    ```
 
@@ -71,7 +71,7 @@ tmux and editors. Ghostty stays on the Mac.
    your shell:
 
    ```bash
-   sudo apt install git stow tmux zsh vim fzf
+   sudo apt install git stow tmux zsh vim fzf ripgrep
    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
    chsh -s "$(command -v zsh)"
    ```
