@@ -208,6 +208,18 @@ require('which-key').add({
 require('mason').setup()
 require('mason-lspconfig').setup()
 vim.lsp.config('lua_ls', { settings = { Lua = { diagnostics = { globals = { 'vim', 'Snacks' } } } } })
+vim.lsp.config('pyright', {
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = 'off',
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = 'openFilesOnly',
+      },
+    },
+  },
+})
 vim.diagnostic.config({ virtual_text = true })
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(ev)
