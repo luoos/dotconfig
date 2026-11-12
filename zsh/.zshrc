@@ -40,6 +40,35 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd 'v' edit-command-line
 
+# --- History & fzf fuzzy finder ---
+HISTSIZE=50000
+SAVEHIST=50000
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+
+# Set up fzf (Ctrl+R for history search, Ctrl+T for files, Alt+C for dirs)
+if (( $+commands[fzf] )); then
+  if fzf --zsh >/dev/null 2>&1; then
+    eval "$(fzf --zsh)"
+  else
+    for _fzf_dir in \
+      /opt/homebrew/opt/fzf/shell \
+      /usr/local/opt/fzf/shell \
+      ~/.fzf/shell \
+      /usr/share/doc/fzf/examples
+    do
+      if [[ -d $_fzf_dir ]]; then
+        [[ -f $_fzf_dir/key-bindings.zsh ]] && source "$_fzf_dir/key-bindings.zsh"
+        [[ -f $_fzf_dir/completion.zsh ]] && source "$_fzf_dir/completion.zsh"
+        break
+      fi
+    done
+    unset _fzf_dir
+  fi
+fi
+
 # v [file]   open Neovim (vim still runs plain Vim with ~/.vimrc)
 alias v='nvim'
 

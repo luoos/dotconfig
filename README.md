@@ -15,7 +15,7 @@ they'd have relative to `~`.
 |-----------|---------------------------------|------------|
 | `ghostty` | `~/.config/ghostty/`            | Ghostty terminal: Breadog light theme, font size, split keys |
 | `tmux`    | `~/.tmux.conf`                  | tmux: mouse, vi copy mode to the clipboard (OSC 52), `\|` / `-` splits, Ctrl+h/j/k/l across tmux and Neovim, PageUp to scroll |
-| `zsh`     | `~/.zshrc`, `~/.p10k.zsh`       | zsh with vi mode, Powerlevel10k prompt, `t` shortcut for tmux sessions |
+| `zsh`     | `~/.zshrc`, `~/.p10k.zsh`       | zsh with vi mode, Powerlevel10k prompt, `t` shortcut for tmux sessions, fzf fuzzy search |
 | `nvim`    | `~/.config/nvim/`               | Neovim 0.12+, plugins via the built-in `vim.pack` (versions pinned in `nvim-pack-lock.json`) |
 | `vim`     | `~/.vimrc`                      | Plain Vim, sharing Ghostty's 16-color palette |
 
@@ -29,7 +29,7 @@ tracked.
 1. Install the tools:
 
    ```bash
-   brew install stow tmux neovim powerlevel10k
+   brew install stow tmux neovim powerlevel10k fzf
    brew install --cask ghostty
    ```
 
@@ -71,7 +71,7 @@ tmux and editors. Ghostty stays on the Mac.
    your shell:
 
    ```bash
-   sudo apt install git stow tmux zsh vim
+   sudo apt install git stow tmux zsh vim fzf
    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
    chsh -s "$(command -v zsh)"
    ```
