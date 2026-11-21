@@ -37,6 +37,7 @@ o.splitright = true
 o.splitbelow = true
 o.updatetime = 250
 o.confirm = true              -- ask instead of failing on :q with unsaved changes
+o.completeopt = { 'menuone', 'noselect', 'fuzzy', 'popup' } -- don't auto-insert first match; enable fuzzy completion
 
 -- ── Colors ────────────────────────────────────────────────────────────────
 o.termguicolors = true
