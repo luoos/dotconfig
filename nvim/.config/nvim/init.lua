@@ -58,6 +58,16 @@ map('n', '<C-l>', '<cmd>TmuxNavigateRight<CR>', { desc = 'Window/pane right' })
 -- window on the left. (Esc is left alone: Claude Code uses Esc Esc itself.
 -- To scroll/copy terminal output, leave terminal mode with Ctrl+\ Ctrl+n.)
 map('t', '<C-h>', '<C-\\><C-n><cmd>TmuxNavigateLeft<CR>', { desc = 'Window/pane left' })
+-- Ctrl+p / Alt+p: back to the previous window (Ctrl+w p), also from the Claude
+-- panel (so programs in Neovim terminals don't get Ctrl+p). Landing in a
+-- terminal starts typing there.
+local function prev_win()
+  if vim.api.nvim_get_mode().mode == 't' then vim.cmd.stopinsert() end
+  vim.cmd.wincmd('p')
+  if vim.bo.buftype == 'terminal' then vim.cmd.startinsert() end
+end
+map({ 'n', 't' }, '<C-p>', prev_win, { desc = 'Previous window' })
+map({ 'n', 't' }, '<M-p>', prev_win, { desc = 'Previous window' })
 -- Move lines with Alt+j/k (Option works as Alt in Ghostty)
 map('n', '<M-j>', '<cmd>m .+1<CR>==', { desc = 'Move line down' })
 map('n', '<M-k>', '<cmd>m .-2<CR>==', { desc = 'Move line up' })

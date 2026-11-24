@@ -176,6 +176,7 @@ window.SECTIONS = [
     items: [
       { k: 'Ctrl+h / Ctrl+j / Ctrl+k / Ctrl+l', d: 'Move between windows, on into tmux panes', src: ["map('n', '<C-h>'", "map('n', '<C-j>'", "map('n', '<C-k>'", "map('n', '<C-l>'"], tags: 'navigate focus split' },
       { k: 'Ctrl+h', d: '(terminal mode) Jump to window on the left', src: "map('t', '<C-h>'", tags: 'claude panel' },
+      { k: 'Ctrl+p / Alt+p / Ctrl+w p', d: 'Back to the previous window (toggles). Ctrl+p and Alt+p also work in the Claude panel', src: ["'<C-p>', prev_win", "'<M-p>', prev_win"], tags: 'last recent alternate switch focus terminal' },
       { k: 'Ctrl+\\ Ctrl+n', d: 'Leave terminal mode (to scroll / copy)', tags: 'escape normal' },
       { k: 'Leader z / Alt+z', d: 'Zoom window full-screen / restore layout. Alt+z also works in the Claude panel', src: ["'<leader>z', zoom", "'<M-z>', zoom"], tags: 'maximize fullscreen toggle terminal' },
       { k: 'Ctrl+w | / Ctrl+w _', d: 'Maximize window width / height', tags: 'maximize resize' },
