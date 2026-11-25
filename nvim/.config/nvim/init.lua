@@ -80,9 +80,11 @@ map('n', '<C-j>', '<cmd>TmuxNavigateDown<CR>', { desc = 'Window/pane down' })
 map('n', '<C-k>', '<cmd>TmuxNavigateUp<CR>', { desc = 'Window/pane up' })
 map('n', '<C-l>', '<cmd>TmuxNavigateRight<CR>', { desc = 'Window/pane right' })
 -- From a terminal (e.g. the Claude panel on the right), Ctrl+h jumps back to the
--- window on the left. (Esc is left alone: Claude Code uses Esc Esc itself.
--- To scroll/copy terminal output, leave terminal mode with Ctrl+\ Ctrl+n.)
+-- window on the left. (Esc is left alone: Claude Code uses Esc Esc itself.)
 map('t', '<C-h>', '<C-\\><C-n><cmd>TmuxNavigateLeft<CR>', { desc = 'Window/pane left' })
+-- Ctrl+q leaves terminal mode (same as Ctrl+\ Ctrl+n) to scroll / copy the
+-- output with Vim keys; i or a goes back to typing.
+map('t', '<C-q>', '<C-\\><C-n>', { desc = 'Leave terminal mode (scroll / copy)' })
 -- Ctrl+p / Alt+p: back to the previous window (Ctrl+w p), also from the Claude
 -- panel (so programs in Neovim terminals don't get Ctrl+p). Landing in a
 -- terminal starts typing there.
