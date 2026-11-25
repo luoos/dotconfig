@@ -9,6 +9,9 @@ window-padding-x = 10
 window-padding-y = 8
 window-padding-balance = true
 background-opacity = 0.97
+# Apply that opacity to backgrounds apps paint too (Neovim, Vim), so they match
+# the window instead of looking like a solid block
+background-opacity-cells = true
 background-blur = true
 cursor-style = bar
 cursor-style-blink = false
