@@ -229,6 +229,14 @@ window.SECTIONS = [
     ],
   },
   {
+    app: 'nvim', title: 'Antigravity', file: 'nvim/.config/nvim/init.lua',
+    note: 'Runs the agy CLI in a right-hand panel. No diff review: its edits go straight to disk.',
+    items: [
+      { k: 'Leader a g', d: 'Toggle Antigravity panel', src: "'<leader>ag'", tags: 'ai agy gemini google open' },
+      { k: 'Leader a G', d: 'Open Antigravity continuing the last conversation here', src: "'<leader>aG'", tags: 'ai agy resume continue' },
+    ],
+  },
+  {
     app: 'nvim', title: 'Code (LSP)', file: 'nvim/.config/nvim/init.lua',
     note: 'Install a language server with :Mason.',
     items: [

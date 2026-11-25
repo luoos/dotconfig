@@ -231,7 +231,7 @@ require('snacks').setup({
 require('gitsigns').setup()
 require('which-key').setup({ delay = 300 })
 require('which-key').add({
-  { '<leader>a', group = 'AI / Claude' },
+  { '<leader>a', group = 'AI (Claude, Antigravity)' },
   { '<leader>f', group = 'Find' },
   { '<leader>g', group = 'Git' },
 })
@@ -353,6 +353,22 @@ map('n', '<leader>as', function()
 end, { desc = 'Send current line' })
 map('n', '<leader>aa', '<cmd>ClaudeCodeDiffAccept<CR>', { desc = 'Accept diff' })
 map('n', '<leader>ad', '<cmd>ClaudeCodeDiffDeny<CR>', { desc = 'Deny diff' })
+
+-- Antigravity CLI (`agy`) in a right-hand terminal panel, like Claude's. It has no
+-- Neovim link: type @file yourself (Space a y copies one), and its edits land on
+-- disk and reload here. Install: curl -fsSL https://antigravity.google/cli/install.sh | bash
+local agy_panel
+local function antigravity(args)
+  return function()
+    if agy_panel and agy_panel:buf_valid() then return agy_panel:toggle() end
+    if vim.fn.executable('agy') == 0 then
+      return vim.notify('Antigravity CLI (agy) is not installed. See init.lua for the install line.', vim.log.levels.WARN)
+    end
+    agy_panel = Snacks.terminal.open(vim.list_extend({ 'agy' }, args), { win = { position = 'right', width = 0.3 } })
+  end
+end
+map('n', '<leader>ag', antigravity({}), { desc = 'Toggle Antigravity' })
+map('n', '<leader>aG', antigravity({ '-c' }), { desc = 'Antigravity: continue last conversation' })
 
 -- ── Local machine overrides ────────────────────────────────────────────────
 -- Machine-specific config (not tracked in git), analogous to ~/.zshrc.local
