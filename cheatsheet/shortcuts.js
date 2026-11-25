@@ -223,8 +223,7 @@ window.SECTIONS = [
       { k: 'Leader a r', d: 'Resume a conversation', src: "'<leader>ar'" },
       { k: 'Leader a C', d: 'Continue last conversation', src: "'<leader>aC'" },
       { k: 'Leader a b', d: 'Add current file to context', src: "'<leader>ab'", tags: 'buffer' },
-      { k: 'Leader a s', d: 'Send current line / selection', src: ["map('x', '<leader>as'", "map('n', '<leader>as'"] },
-      { k: 'Leader a a / Leader a d', d: 'Accept / deny proposed diff', src: ["'<leader>aa'", "'<leader>ad'"] },
+            { k: 'Leader a a / Leader a d', d: 'Accept / deny proposed diff', src: ["'<leader>aa'", "'<leader>ad'"] },
       { k: 'Leader a y', d: 'Copy "@file#L12" (or range) for any agent', src: ["map('n', '<leader>ay'", "map('x', '<leader>ay'"], tags: 'reference line path clipboard' },
     ],
   },
@@ -234,6 +233,7 @@ window.SECTIONS = [
     items: [
       { k: 'Leader a g', d: 'Toggle Antigravity panel', src: "'<leader>ag'", tags: 'ai agy gemini google open' },
       { k: 'Leader a G', d: 'Open Antigravity continuing the last conversation here', src: "'<leader>aG'", tags: 'ai agy resume continue' },
+      { k: 'Leader a s', d: 'Send current line / selection to the open agent panel (Antigravity or Claude; both open: the one used last; none: Claude)', src: ["map('n', '<leader>as'", "map('x', '<leader>as'"], tags: 'ai agy claude send reference' },
     ],
   },
   {

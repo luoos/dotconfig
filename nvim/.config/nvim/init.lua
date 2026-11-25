@@ -43,14 +43,15 @@ o.completeopt = { 'menuone', 'noselect', 'fuzzy', 'popup' } -- don't auto-insert
 -- Ctrl+n / Ctrl+p move through the menu, Ctrl+y accepts, Ctrl+e closes it.
 o.autocomplete = true
 o.complete = 'o,.,w,b'
--- ...but only once a name is being typed: not on a fresh or blank line, and
--- not after a space. (After "." the language server still opens the menu.)
+-- ...but only in files, and only once a name is being typed: not on a fresh or
+-- blank line, and not after a space. (After "." the language server still opens the menu.)
 do
   local function char_before()
     local col = vim.fn.col('.') - 1
     return col > 0 and vim.fn.getline('.'):sub(col, col) or ''
   end
-  local is_word = function(c) return c:match('[%w_]') ~= nil end
+  -- Only in files: not in the picker's search box, prompts or other special buffers
+  local is_word = function(c) return vim.bo.buftype == '' and c:match('[%w_]') ~= nil end
   local g = vim.api.nvim_create_augroup('autocomplete_after_typing', {})
   vim.api.nvim_create_autocmd('InsertEnter', { group = g, callback = function() o.autocomplete = false end })
   vim.api.nvim_create_autocmd('InsertCharPre', { group = g, callback = function() o.autocomplete = is_word(vim.v.char) end })
@@ -104,10 +105,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Copy "@path#L12" / "@path#L12-20" to the clipboard (for pasting into any agent)
-local function copy_line_ref(l1, l2)
+local function line_ref(l1, l2)
   local path = vim.fn.expand('%:.')
   if path == '' then return vim.notify('Buffer has no file', vim.log.levels.WARN) end
-  local ref = '@' .. path .. '#L' .. l1 .. (l1 == l2 and '' or '-' .. l2)
+  return '@' .. path .. '#L' .. l1 .. (l1 == l2 and '' or '-' .. l2)
+end
+local function copy_line_ref(l1, l2)
+  local ref = line_ref(l1, l2)
+  if not ref then return end
   vim.fn.setreg('+', ref .. ' ')
   vim.notify('Copied ' .. ref)
 end
@@ -346,11 +351,6 @@ map('n', '<leader>af', '<cmd>ClaudeCodeFocus<CR>', { desc = 'Focus Claude' })
 map('n', '<leader>ar', '<cmd>ClaudeCode --resume<CR>', { desc = 'Resume conversation' })
 map('n', '<leader>aC', '<cmd>ClaudeCode --continue<CR>', { desc = 'Continue last conversation' })
 map('n', '<leader>ab', '<cmd>ClaudeCodeAdd %<CR>', { desc = 'Add current file' })
-map('x', '<leader>as', '<cmd>ClaudeCodeSend<CR>', { desc = 'Send selection' })
-map('n', '<leader>as', function()
-  local l = vim.fn.line('.')
-  vim.cmd('ClaudeCodeAdd ' .. vim.fn.fnameescape(vim.fn.expand('%:p')) .. ' ' .. l .. ' ' .. l)
-end, { desc = 'Send current line' })
 map('n', '<leader>aa', '<cmd>ClaudeCodeDiffAccept<CR>', { desc = 'Accept diff' })
 map('n', '<leader>ad', '<cmd>ClaudeCodeDiffDeny<CR>', { desc = 'Deny diff' })
 
@@ -369,6 +369,40 @@ local function antigravity(args)
 end
 map('n', '<leader>ag', antigravity({}), { desc = 'Toggle Antigravity' })
 map('n', '<leader>aG', antigravity({ '-c' }), { desc = 'Antigravity: continue last conversation' })
+
+-- Space a s sends the line / selection to the agent panel that is open: Antigravity
+-- (as "@file#L12" typed at its prompt) or Claude. With both open, the one you were
+-- in last wins; with neither, Claude.
+local last_agent = 'claude'
+local function claude_buf() return require('claudecode.terminal').get_active_terminal_bufnr() end
+local function shown(buf) return buf ~= nil and #vim.fn.win_findbuf(buf) > 0 end
+vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    if agy_panel and buf == agy_panel.buf then last_agent = 'agy'
+    elseif buf == claude_buf() then last_agent = 'claude' end
+  end,
+})
+local function send_to_agy()
+  local agy_open = agy_panel and agy_panel:buf_valid() and shown(agy_panel.buf)
+  return agy_open and (last_agent == 'agy' or not shown(claude_buf()))
+end
+map('n', '<leader>as', function()
+  local l = vim.fn.line('.')
+  if send_to_agy() then
+    local ref = line_ref(l, l)
+    if ref then vim.api.nvim_chan_send(vim.bo[agy_panel.buf].channel, ref .. ' ') end
+  else
+    vim.cmd('ClaudeCodeAdd ' .. vim.fn.fnameescape(vim.fn.expand('%:p')) .. ' ' .. l .. ' ' .. l)
+  end
+end, { desc = 'Send current line to agent' })
+map('x', '<leader>as', function()
+  if not send_to_agy() then return vim.api.nvim_feedkeys(':ClaudeCodeSend\r', 'n', false) end
+  local a, b = vim.fn.line('v'), vim.fn.line('.')
+  vim.api.nvim_feedkeys(vim.keycode('<Esc>'), 'n', false)
+  local ref = line_ref(math.min(a, b), math.max(a, b))
+  if ref then vim.api.nvim_chan_send(vim.bo[agy_panel.buf].channel, ref .. ' ') end
+end, { desc = 'Send selection to agent' })
 
 -- ── Local machine overrides ────────────────────────────────────────────────
 -- Machine-specific config (not tracked in git), analogous to ~/.zshrc.local
