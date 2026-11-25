@@ -43,6 +43,25 @@ o.completeopt = { 'menuone', 'noselect', 'fuzzy', 'popup' } -- don't auto-insert
 -- Ctrl+n / Ctrl+p move through the menu, Ctrl+y accepts, Ctrl+e closes it.
 o.autocomplete = true
 o.complete = 'o,.,w,b'
+-- ...but only once a name is being typed: not on a fresh or blank line, and
+-- not after a space. (After "." the language server still opens the menu.)
+do
+  local function char_before()
+    local col = vim.fn.col('.') - 1
+    return col > 0 and vim.fn.getline('.'):sub(col, col) or ''
+  end
+  local is_word = function(c) return c:match('[%w_]') ~= nil end
+  local g = vim.api.nvim_create_augroup('autocomplete_after_typing', {})
+  vim.api.nvim_create_autocmd('InsertEnter', { group = g, callback = function() o.autocomplete = false end })
+  vim.api.nvim_create_autocmd('InsertCharPre', { group = g, callback = function() o.autocomplete = is_word(vim.v.char) end })
+  vim.api.nvim_create_autocmd({ 'TextChangedI', 'TextChangedP' }, { group = g, callback = function()
+    local c = char_before()
+    o.autocomplete = is_word(c)
+    if c:match('^%s?$') and vim.fn.pumvisible() == 1 then
+      vim.api.nvim_feedkeys(vim.keycode('<C-e>'), 'n', false) -- backspaced to nothing: close it
+    end
+  end })
+end
 
 -- ── Colors ────────────────────────────────────────────────────────────────
 o.termguicolors = true
