@@ -38,6 +38,11 @@ o.splitbelow = true
 o.updatetime = 250
 o.confirm = true              -- ask instead of failing on :q with unsaved changes
 o.completeopt = { 'menuone', 'noselect', 'fuzzy', 'popup' } -- don't auto-insert first match; enable fuzzy completion
+-- Show completions as you type (Neovim 0.12): the language server first (via
+-- omnifunc), then words in this buffer, other windows and open buffers.
+-- Ctrl+n / Ctrl+p move through the menu, Ctrl+y accepts, Ctrl+e closes it.
+o.autocomplete = true
+o.complete = 'o,.,w,b'
 
 -- ── Colors ────────────────────────────────────────────────────────────────
 o.termguicolors = true
