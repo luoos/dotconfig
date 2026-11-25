@@ -279,7 +279,6 @@ local function toggle_explorer()
     Snacks.explorer()
   end
 end
-map('n', '<C-n>', toggle_explorer, { desc = 'Toggle file explorer sidebar' })
 map('n', '<leader>e', toggle_explorer, { desc = 'Toggle file explorer sidebar' })
 map('n', '<leader>fe', toggle_explorer, { desc = 'Toggle file explorer sidebar' })
 map('n', '<leader><leader>', pick('files'), { desc = 'Find files' })
