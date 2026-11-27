@@ -249,6 +249,7 @@ window.SECTIONS = [
       { k: 'g r r', d: 'References', tags: 'usages' },
       { k: 'g r i', d: 'Implementation' },
       { k: 'g O', d: 'Outline: symbols in this file', tags: 'document symbols' },
+      { k: 'Leader c f', d: 'Format file or selection (Python: ruff sorts imports, wraps at 80)', src: "'<leader>cf'", tags: 'format prettier black isort trailing whitespace' },
       { k: 'Ctrl+n / Ctrl+p', d: '(insert) Next / previous completion; the menu opens as you type', tags: 'autocomplete suggest variable popup menu' },
       { k: 'Ctrl+y / Ctrl+e', d: '(insert) Accept / close the completion menu', tags: 'autocomplete confirm cancel dismiss' },
       { k: 'Ctrl+s', d: '(insert) Signature help', tags: 'parameters' },

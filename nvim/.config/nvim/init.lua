@@ -172,6 +172,7 @@ vim.pack.add({
   'https://github.com/mason-org/mason-lspconfig.nvim', -- enables servers Mason installed
   'https://github.com/christoomey/vim-tmux-navigator', -- Ctrl+h/j/k/l across Neovim and tmux
   'https://github.com/iamcco/markdown-preview.nvim',   -- live Markdown preview in the browser
+  'https://github.com/stevearc/conform.nvim',    -- Space c f formats with ruff etc.
   { src = 'https://github.com/catppuccin/nvim', name = 'catppuccin' },
   'https://github.com/nvim-treesitter/nvim-treesitter',
 }, { confirm = false })
@@ -239,6 +240,7 @@ require('gitsigns').setup()
 require('which-key').setup({ delay = 300 })
 require('which-key').add({
   { '<leader>a', group = 'AI (Claude, Antigravity)' },
+  { '<leader>c', group = 'Code' },
   { '<leader>f', group = 'Find' },
   { '<leader>g', group = 'Git' },
 })
@@ -275,6 +277,34 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
   end,
 })
+
+-- ── Formatting (conform.nvim): Space c f ──────────────────────────────────
+-- Python: ruff sorts imports, then formats (wraps code at 80 columns, strips
+-- trailing spaces, collapses extra blank lines). Install with :MasonInstall ruff.
+-- A project's own ruff.toml / [tool.ruff] wins over the 80-column default.
+-- Other files: the language server's formatter if it has one, else just trim
+-- trailing spaces and blank lines at the end.
+local function ruff_line_length(_, ctx)
+  local found = vim.fs.find({ 'ruff.toml', '.ruff.toml', 'pyproject.toml' }, { upward = true, path = ctx.dirname })
+  for _, f in ipairs(found) do
+    if not f:match('pyproject%.toml$') then return {} end
+    local ok, lines = pcall(vim.fn.readfile, f)
+    if ok and table.concat(lines, '\n'):find('[tool.ruff', 1, true) then return {} end
+  end
+  return { '--line-length', '80' }
+end
+require('conform').setup({
+  formatters_by_ft = {
+    python = { 'ruff_organize_imports', 'ruff_format' },
+    ['_'] = { 'trim_whitespace', 'trim_newlines', lsp_format = 'prefer' },
+  },
+  formatters = {
+    ruff_organize_imports = { append_args = ruff_line_length },
+    ruff_format = { append_args = ruff_line_length },
+  },
+})
+map({ 'n', 'x' }, '<leader>cf', function() require('conform').format({ async = true }) end,
+  { desc = 'Format file (or selection)' })
 
 -- Finding things (snacks picker)
 local pick = function(name) return function() Snacks.picker[name]() end end
